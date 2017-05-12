@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { TodoStore, Todo } from './models/store.model';
+import { Todo } from './models/todo.model';
+import { TodoStorage } from './services/todoStorage.service';
 
 @Component({
   selector: 'app-root',
@@ -7,83 +8,58 @@ import { TodoStore, Todo } from './models/store.model';
   styleUrls: ['./app.component.css']
 })
 export class TodoAppComponent {
-  todoStore: TodoStore;
-  newTodoText: String = '';
-  filterTodo: Todo[];
+  todoStor: TodoStorage = new TodoStorage();
+  filterTodo: Todo [];
+  allTodo: Todo [];
+  newTodoTitle: String = '';
 
-  constructor(todoStore: TodoStore) {
-    this.todoStore = todoStore;
+  constructor() {
+    this.todoStor = new TodoStorage();
     this.filterAll();
   }
 
-  addTodo() {
-    if (this.newTodoText.trim().length) {
-      this.todoStore.add(this.newTodoText);
-      this.newTodoText = '';
+  addTodo(todoFormAdd): void {
+    this.newTodoTitle = todoFormAdd.value.todo;
+    if (this.newTodoTitle.trim().length) {
+      this.todoStor.add(this.newTodoTitle);
+      this.newTodoTitle = '';
+      todoFormAdd.reset();
     }
   }
 
-  editTodo(todo: Todo) {
-    todo.editing = true;
+  changeTodoStatus(todo: Todo): void {
+    todo.completed = !todo.completed;
   }
 
-  stopEditing(todo: Todo, editedTitle: string) {
-    todo.title = editedTitle;
-    todo.editing = false;
+  removeTodo(todo: Todo): void {
+    this.todoStor.remove(todo);
   }
 
-  updateEditingTodo(todo: Todo, editedTitle: string) {
-    editedTitle = editedTitle.trim();
-    todo.editing = false;
-
-    if (editedTitle.length === 0) {
-      this.todoStore.remove(todo);
-    }
-
-    todo.title = editedTitle;
+  filterAll(): void {
+    this.filterTodo = this.todoStor.todos;
   }
 
-  cancelEditingTodo(todo: Todo) {
-    todo.editing = false;
-  }
-
-  remove(todo: Todo) {
-    this.todoStore.remove(todo);
-  }
-
-  removeCompleted() {
-    this.todoStore.removeCompleted();
-  }
-
-  toggleCompletion(todo: Todo) {
-    this.todoStore.toggleCompletion(todo);
-  }
-
-  filterCompleted() {
-    const allTodo = this.todoStore.todos;
-    const completedTodo = [];
-
-    allTodo.forEach(item => {
+  filterCompleted(): void {
+    const completedTodo: Todo [] = [];
+    this.allTodo = this.todoStor.todos;
+    this.allTodo.forEach(item => {
       if (item.completed) {
         completedTodo.push(item);
       }
     });
+
     this.filterTodo = completedTodo;
   }
 
-  filterAll() {
-    this.filterTodo = this.todoStore.todos;
-  }
-
-  filterActive() {
-    const allTodo = this.todoStore.todos;
-    const activeTodo = [];
-
-    allTodo.forEach(item => {
+  filterActive(): void {
+    const activeTodo: Todo [] = [];
+    this.allTodo = this.todoStor.todos;
+    this.allTodo.forEach(item => {
       if (!item.completed) {
         activeTodo.push(item);
       }
     });
+
     this.filterTodo = activeTodo;
   }
 }

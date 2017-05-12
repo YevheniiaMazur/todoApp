@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { TodoAppComponent } from './app.component';
-import { TodoStore } from './models/store.model';
 
 @NgModule({
   declarations: [
@@ -15,7 +14,7 @@ import { TodoStore } from './models/store.model';
     FormsModule,
     HttpModule
   ],
-  providers: [TodoStore],
+  providers: [],
   bootstrap: [TodoAppComponent]
 })
 export class AppModule { }
