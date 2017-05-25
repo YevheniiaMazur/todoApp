@@ -11,6 +11,10 @@ export class TodoStorage {
   }
 
   remove(todo: Todo): void {
-    this.todos.splice(this.todos.indexOf(todo), 1);
+    this.todos = this.todos.filter(item => item !== todo);
+  }
+
+  changeTodoStatus(todo: Todo): void {
+    todo.completed = !todo.completed;
   }
 }

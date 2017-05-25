@@ -1,9 +1,9 @@
 export class Todo {
-  completed: Boolean;
   title: String;
+  completed: Boolean;
 
   constructor(titleValue: String) {
-    this.completed = false;
     this.title = titleValue;
+    this.completed = false;
   }
 }

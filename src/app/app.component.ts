@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { Todo } from './models/todo.model';
 import { TodoStorage } from './services/todoStorage.service';
 
@@ -8,58 +9,44 @@ import { TodoStorage } from './services/todoStorage.service';
   styleUrls: ['./app.component.css']
 })
 export class TodoAppComponent {
-  todoStor: TodoStorage = new TodoStorage();
-  filterTodo: Todo [];
-  allTodo: Todo [];
+  todoStore: TodoStorage = new TodoStorage();
+  filterArray: Todo [];
   newTodoTitle: String = '';
 
   constructor() {
-    this.todoStor = new TodoStorage();
-    this.filterAll();
+    this.filterTodo('ALL');
   }
 
   addTodo(todoFormAdd): void {
     this.newTodoTitle = todoFormAdd.value.todo;
     if (this.newTodoTitle.trim().length) {
-      this.todoStor.add(this.newTodoTitle);
+      this.todoStore.add(this.newTodoTitle);
       this.newTodoTitle = '';
       todoFormAdd.reset();
     }
   }
 
-  changeTodoStatus(todo: Todo): void {
-    todo.completed = !todo.completed;
-  }
-
   removeTodo(todo: Todo): void {
-    this.todoStor.remove(todo);
+    this.todoStore.remove(todo);
+    this.filterArray = this.todoStore.todos;
   }
 
-  filterAll(): void {
-    this.filterTodo = this.todoStor.todos;
-  }
+  filterTodo(filterName: String) {
+    switch (filterName) {
+      case 'ALL':
+        this.filterArray = this.todoStore.todos;
+        break;
 
-  filterCompleted(): void {
-    const completedTodo: Todo [] = [];
-    this.allTodo = this.todoStor.todos;
-    this.allTodo.forEach(item => {
-      if (item.completed) {
-        completedTodo.push(item);
-      }
-    });
+      case 'COMPLETED':
+        this.filterArray = this.todoStore.todos.filter(item => item.completed === true);
+        break;
 
-    this.filterTodo = completedTodo;
-  }
+      case 'ACTIVE':
+        this.filterArray = this.todoStore.todos.filter(item => item.completed === false);
+        break;
 
-  filterActive(): void {
-    const activeTodo: Todo [] = [];
-    this.allTodo = this.todoStor.todos;
-    this.allTodo.forEach(item => {
-      if (!item.completed) {
-        activeTodo.push(item);
-      }
-    });
-
-    this.filterTodo = activeTodo;
+      default:
+        break;
+    }
   }
 }
