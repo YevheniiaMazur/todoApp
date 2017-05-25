@@ -1,29 +1,22 @@
 <header class="header">
-  <h1>Todo List</h1>
-  <h4>Press enter to add new todo to list</h4>
-  <h4>Double click on todo to edit it</h4>
-  <h4>Use checkboxes to make todo completed</h4>
-  <input class="new-todo" placeholder="What needs to be done?" autofocus="" [(ngModel)]="newTodoText" (keyup.enter)="addTodo()">
+  <h1>My Todos</h1>
+  <form (ngSubmit)="addTodo(todoFormAdd)" #todoFormAdd="ngForm">
+    <input class="new-todo" placeholder="Enter title of your todo" name="todo" autofocus ngModel>
+  </form>
 </header>
-<section class="main" *ngIf="filterTodo.length > 0">
+<section class="main" *ngIf="filterArray.length > 0">
   <ul class="todo-list">
-    <li *ngFor="let todo of filterTodo" [class.completed]="todo.completed" [class.editing]="todo.editing">
-      <div class="view">
-        <input class="toggle" type="checkbox" (click)="toggleCompletion(todo)" [checked]="todo.completed">
-        <label (dblclick)="editTodo(todo)">{{todo.title}}</label>
-     <button class="destroy" (click)="remove(todo)">X</button>
-      </div>
-      <input class="edit" *ngIf="todo.editing" [value]="todo.title"
-              #editedtodo (blur)="stopEditing(todo, editedtodo.value)" (keyup.enter)="updateEditingTodo(todo,
-             editedtodo.value)" (keyup.escape)="cancelEditingTodo(todo)">
+    <li *ngFor="let todo of filterArray">
+      <input class="toggle" type="checkbox" (click)="todoStore.changeTodoStatus(todo)" [checked]="todo.completed">
+      {{todo.title}}
+      <button class="destroy" (click)="removeTodo(todo)">X</button>
     </li>
   </ul>
 </section>
-<footer class="footer" *ngIf="todoStore.todos.length > 0">
-  <span class="todo-count"><strong>{{todoStore.getRemaining().length}}</strong> {{todoStore.getRemaining().length == 1 ? 'item' : 'items'}} left todo</span>
-  <button class="clear-completed" *ngIf="todoStore.getCompleted().length > 0" (click)="removeCompleted()">Clear completed</button>
-</footer>
-<button *ngIf="todoStore.getCompleted().length > 0" (click)="filterCompleted()">Show Completed</button>
-<button *ngIf="todoStore.getRemaining().length > 0" (click)="filterActive()">Show Active</button>
-<button *ngIf="todoStore.todos.length > 0" (click)="filterAll()">Show All</button>
+<section class="filters">
+  <button (click)="filterTodo('ALL')">Show All Todos</button>
+  <button (click)="filterTodo('COMPLETED')">Show Complited Todos</button>
+  <button (click)="filterTodo('ACTIVE')">Show Active Todos</button>
+</section>
+
 

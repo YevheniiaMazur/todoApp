@@ -1,157 +1,86 @@
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
-
-import { TodoAppComponent } from './app.component';
-import { Todo, TodoStore } from './models/store.model';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
-describe('TodoApp', () => {
+import { TodoAppComponent } from './app.component';
+import { Todo } from './models/todo.model';
+
+describe('Todo App ', () => {
   let fixture: ComponentFixture<TodoAppComponent>;
   let app: TodoAppComponent;
   let todo: Todo;
-  let editedTitle: String;
-\
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        TodoAppComponent
-      ],
-      imports: [FormsModule],
-      providers: [TodoStore]
-    }).compileComponents();
+      declarations: [TodoAppComponent],
+      imports: [FormsModule]
+    });
 
     fixture = TestBed.createComponent(TodoAppComponent);
     app = fixture.debugElement.componentInstance;
-    todo = new Todo('testTodo');
-  }));
-
-  afterEach(() => {
-    localStorage.clear();
+    todo = new Todo('todoName');
   });
 
-  it('should add todo', () => {
-    app.newTodoText = 'text';
-
-    app.addTodo();
-
-    expect(app.todoStore.todos[0].title).toBe('text');
-    expect(app.newTodoText).toBe('');
-  });
-
-  it('should not add empty todo', () => {
+  it('check add todo with title', () => {
     spyOn(app.todoStore, 'add');
+    const todoFormAdd = {
+      value: {todo: 'todo'},
+      reset: res => res
+    };
+    app.addTodo(todoFormAdd);
 
-    app.addTodo();
+    expect(app.todoStore.add).toHaveBeenCalledWith('todo');
+  });
+
+  it('check add todo without title', () => {
+    spyOn(app.todoStore, 'add');
+    const todoFormAdd = {
+      value: {todo: ''},
+      reset: res => res
+    };
+    app.addTodo(todoFormAdd);
 
     expect(app.todoStore.add).not.toHaveBeenCalled();
   });
 
-  it('should change editing flag of todo', () => {
-    app.editTodo(todo);
-
-    expect(todo.editing).toBeTruthy();
-  });
-
-  it('should stop editing', () => {
-    editedTitle = todo.title;
-
-    app.editTodo(todo);
-    app.stopEditing(todo, editedTitle.toString());
-
-    expect(todo.title).toBe(editedTitle);
-    expect(todo.editing).not.toBeTruthy();
-  });
-
-  it('should update editing todo', () => {
-    editedTitle = 'newTitle';
-
-    app.editTodo(todo);
-    app.updateEditingTodo(todo, editedTitle.toString());
-
-    expect(todo.title).toBe(editedTitle);
-    expect(todo.editing).not.toBeTruthy();
-  });
-
-  it('should delete empty todo', () => {
-    editedTitle = '';
-
+  it('check remove todo', () => {
     spyOn(app.todoStore, 'remove');
 
-    app.updateEditingTodo(todo, editedTitle.toString());
-
-    expect(app.todoStore.remove).toHaveBeenCalled();
-  });
-
-  it('should cancel editing todo', () => {
-    app.editTodo(todo);
-    app.cancelEditingTodo(todo);
-
-    expect(todo.editing).not.toBeTruthy();
-  });
-
-  it('should remove todo', () => {
-    spyOn(app.todoStore, 'remove');
-
-    app.remove(todo);
+    app.removeTodo(todo);
 
     expect(app.todoStore.remove).toHaveBeenCalledWith(todo);
   });
 
-  it('should remove completed', () => {
-    spyOn(app.todoStore, 'removeCompleted');
+  it('check filter completed with complete todo', () => {
+    todo.completed = true;
+    app.todoStore.todos = [todo];
 
-    app.removeCompleted();
+    app.filterTodo('COMPLETED');
 
-    expect(app.todoStore.removeCompleted).toHaveBeenCalled();
+    expect(app.filterArray).toContain(todo);
   });
 
-  it('should call toggleCompletion', () => {
-    spyOn(app.todoStore, 'toggleCompletion');
+  it('check filter completed with active todo', () => {
+    app.todoStore.todos = [todo];
 
-    app.toggleCompletion(todo);
+    app.filterTodo('COMPLETED');
 
-    expect(app.todoStore.toggleCompletion).toHaveBeenCalledWith(todo);
+    expect(app.filterArray).not.toContain(todo);
   });
 
-  it('filterCompleted should be empty without completed todo', () => {
-    app.todoStore.add('todo1');
-    app.todoStore.add('todo2');
+  it('check filter active with active todo', () => {
+    app.todoStore.todos = [todo];
 
-    app.filterCompleted();
+    app.filterTodo('ACTIVE');
 
-    expect(app.filterTodo).toEqual([]);
+    expect(app.filterArray).toContain(todo);
   });
 
-  it('filterCompleted contains completed todos', () => {
-    app.todoStore.add('todo1');
-    app.todoStore.add('todo2');
-    app.todoStore.toggleCompletion(app.todoStore.todos[0]);
+  it('check filter active with complete todo', () => {
+    todo.completed = true;
+    app.todoStore.todos = [todo];
 
-    app.filterCompleted();
+    app.filterTodo('ACTIVE');
 
-    expect(app.filterTodo).toContain(app.todoStore.todos[0]);
-  });
-
-  it('filterActive is empty without active todo', () => {
-    app.todoStore.add('todo1');
-    app.todoStore.add('todo2');
-    app.todoStore.toggleCompletion(app.todoStore.todos[0]);
-    app.todoStore.toggleCompletion(app.todoStore.todos[1]);
-
-    console.log(app.filterTodo);
-    app.filterActive();
-    console.log(app.filterTodo);
-
-    expect(app.filterTodo).toEqual([]);
-  });
-
-  it('filterActive contains active todos', () => {
-    app.todoStore.add('todo1');
-    app.todoStore.add('todo2');
-    app.todoStore.toggleCompletion(app.todoStore.todos[0]);
-
-    app.filterActive();
-
-    expect(app.filterTodo).toContain(app.todoStore.todos[1]);
+    expect(app.filterArray).not.toContain(todo);
   });
 });
